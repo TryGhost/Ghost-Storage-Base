@@ -1,1 +1,1 @@
-# Ghost-Storage-Base
+# Ghost Storage Base
