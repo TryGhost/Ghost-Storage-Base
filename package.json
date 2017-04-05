@@ -1,0 +1,29 @@
+{
+  "name": "ghost-storage-base",
+  "version": "0.0.1",
+  "description": "Base storage adapter.",
+  "author": "Ghost Foundation",
+  "homepage": "http://ghost.org",
+  "keywords": [
+    "ghost",
+    "storage",
+    "adapter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TryGhost/Ghost-Storage-Base.git"
+  },
+  "bugs": "https://github.com/TryGhost/Ghost-Storage-Base/issues",
+  "scripts": {
+    "test": "LEVEL=fatal _mocha --report lcovonly -- test/*_spec.js"
+  },
+  "license": "MIT",
+  "main": "./BaseStorage",
+  "dependencies": {
+    "moment": "^2.17.1"
+  },
+  "devDependencies": {
+    "mocha": "3.1.2",
+    "should": "11.1.1"
+  }
+}
