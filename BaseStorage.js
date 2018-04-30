@@ -1,6 +1,4 @@
-'use strict';
-
-var moment = require('moment'),
+const moment = require('moment'),
     path = require('path');
 
 class StorageBase {
@@ -12,7 +10,7 @@ class StorageBase {
     }
 
     getTargetDir(baseDir) {
-        var date = moment(),
+        const date = moment(),
             month = date.format('MM'),
             year = date.format('YYYY');
 
@@ -24,8 +22,7 @@ class StorageBase {
     }
 
     generateUnique(dir, name, ext, i) {
-        var self = this,
-            filename,
+        let filename,
             append = '';
 
         if (i) {
@@ -38,10 +35,10 @@ class StorageBase {
             filename = name + append;
         }
 
-        return this.exists(filename, dir).then(function (exists) {
+        return this.exists(filename, dir).then((exists) => {
             if (exists) {
                 i = i + 1;
-                return self.generateUnique(dir, name, ext, i);
+                return this.generateUnique(dir, name, ext, i);
             } else {
                 return path.join(dir, filename);
             }

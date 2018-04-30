@@ -1,16 +1,16 @@
-var should = require('should'),
+const should = require('should'),
     Promise = require('bluebird'),
     StorageBase = require('../BaseStorage');
 
 describe('Storage Base', function () {
     it('getSanitizedFileName: escape non accepted characters in filenames', function () {
-        var storage = new StorageBase();
+        const storage = new StorageBase();
         storage.getSanitizedFileName('(abc*@#123).zip').should.eql('-abc-@-123-.zip');
     });
 
     it('getUniqueFileName: accepts jpg', function (done) {
-        var storage = new StorageBase(),
-            i = 0;
+        const storage = new StorageBase();
+        let i = 0;
 
         storage.exists = function () {
             i = i + 1;
@@ -31,7 +31,7 @@ describe('Storage Base', function () {
     });
 
     it('getUniqueFileName: accepts png', function (done) {
-        var storage = new StorageBase();
+        const storage = new StorageBase();
 
         storage.exists = function () {
             return Promise.resolve(false);
@@ -46,8 +46,8 @@ describe('Storage Base', function () {
     });
 
     it('getUniqueFileName: deny .1 extension', function (done) {
-        var storage = new StorageBase(),
-            i = 0;
+        const storage = new StorageBase();
+        let i = 0;
 
         storage.exists = function () {
             i = i + 1;
