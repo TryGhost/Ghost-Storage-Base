@@ -1,7 +1,7 @@
 const moment = require('moment'),
     path = require('path');
 
-class StorageBase {
+class BaseStorage {
     constructor() {
         Object.defineProperty(this, 'requiredFns', {
             value: ['exists', 'save', 'serve', 'delete', 'read'],
@@ -66,4 +66,4 @@ class StorageBase {
     }
 }
 
-module.exports = StorageBase;
+module.exports = BaseStorage;
