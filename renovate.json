@@ -1,5 +1,9 @@
 {
   "extends": [
-    "config:base"
-  ]
+    "@tryghost:base",
+    "@tryghost:automergeSilentTestLintNonMajor"
+  ],
+  "node": {
+    "supportPolicy": ["lts"]
+   }
 }
