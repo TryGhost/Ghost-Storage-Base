@@ -1,6 +1,6 @@
 {
   "name": "ghost-storage-base",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Base storage adapter.",
   "author": "Ghost Foundation",
   "homepage": "http://ghost.org",
