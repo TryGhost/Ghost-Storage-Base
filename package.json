@@ -22,7 +22,7 @@
   "license": "MIT",
   "main": "./BaseStorage",
   "dependencies": {
-    "moment": "2.25.3"
+    "moment": "2.26.0"
   },
   "engine": {
     "node": "^10.13.0 || ^12.10.0"
