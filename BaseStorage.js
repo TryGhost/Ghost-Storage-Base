@@ -23,6 +23,7 @@ class StorageBase {
 
     generateUnique(dir, name, ext, i) {
         let filename,
+            orig_filename,
             append = '';
 
         if (i) {
@@ -31,8 +32,10 @@ class StorageBase {
 
         if (ext) {
             filename = name + append + ext;
+            orig_filename = name + '_o' + append + ext;
         } else {
             filename = name + append;
+            orig_filename = name + '_o' + append;
         }
 
         return this.exists(filename, dir).then((exists) => {
@@ -40,7 +43,14 @@ class StorageBase {
                 i = i + 1;
                 return this.generateUnique(dir, name, ext, i);
             } else {
-                return path.join(dir, filename);
+                return this.exists(orig_filename, dir).then((exists) => {
+                    if (exists) {
+                        i = i + 1;
+                        return this.generateUnique(dir, name, ext, i);
+                    } else {
+                        return path.join(dir, filename);
+                    }
+                })
             }
         });
     }
