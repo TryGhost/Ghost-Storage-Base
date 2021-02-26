@@ -38,13 +38,13 @@ class StorageBase {
             orig_filename = name + '_o' + append;
         }
 
-        return this.exists(filename, dir).then((exists) => {
-            if (exists) {
+        return this.exists(filename, dir).then((filenameExists) => {
+            if (filenameExists) {
                 i = i + 1;
                 return this.generateUnique(dir, name, ext, i);
             } else {
-                return this.exists(orig_filename, dir).then((exists) => {
-                    if (exists) {
+                return this.exists(orig_filename, dir).then((originalFilenameExists) => {
+                    if (originalFilenameExists) {
                         i = i + 1;
                         return this.generateUnique(dir, name, ext, i);
                     } else {
