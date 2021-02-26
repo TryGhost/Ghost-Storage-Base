@@ -76,7 +76,7 @@ describe('Storage Base', function () {
       };
       storage.getUniqueFileName({name: 'something.png'}, 'target-empty-dir')
           .then(function (filename) {
-            filename.should.eql('target-dir/something-4.png');
+            filename.should.eql('target-empty-dir/something-4.png');
               done();
           })
           .catch(done);
