@@ -69,39 +69,14 @@ describe('Storage Base', function () {
     it('currect filename: png', function(done){
       const storage = new StorageBase();
       let i = 0;
-
+      let files = [true, true, false, true, false, true, false, false];
       storage.exists = function () {
-          i = i + 1;
-
-          if (i < 4) {
-              return Promise.resolve(true);
-          } else {
-              return Promise.resolve(false);
-          }
+        i = i + 1;
+        return Promise.resolve(files[i-1]);
       };
-      storage.getUniqueFileName({name: 'something.png'}, 'target-dir')
+      storage.getUniqueFileName({name: 'something.png'}, 'target-empty-dir')
           .then(function (filename) {
-            filename.should.eql('target-dir/something-3.png');
-              done();
-          })
-          .catch(done);
-    });
-    it('currect filename: jpg', function(done){
-      const storage = new StorageBase();
-      let i = 0;
-
-      storage.exists = function () {
-          i = i + 1;
-
-          if (i < 5) {
-              return Promise.resolve(true);
-          } else {
-              return Promise.resolve(false);
-          }
-      };
-      storage.getUniqueFileName({name: 'something.jpg'}, 'target-dir')
-          .then(function (filename) {
-            filename.should.eql('target-dir/something-4.jpg');
+            filename.should.eql('target-dir/something-4.png');
               done();
           })
           .catch(done);
