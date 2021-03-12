@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "bluebird": "3.7.2",
-    "mocha": "8.3.1",
+    "mocha": "8.3.2",
     "should": "13.2.3"
   }
 }
