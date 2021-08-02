@@ -1,6 +1,6 @@
 # Ghost Storage Base
 
-Docs: https://docs.ghost.org/docs/using-a-custom-storage-module
+Docs: https://ghost.org/docs/config/#creating-a-custom-storage-adapter
 
 ## Development
 
