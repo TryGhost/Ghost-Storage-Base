@@ -25,7 +25,7 @@
     "moment": "2.27.0"
   },
   "engine": {
-    "node": "^10.13.0 || ^12.10.0"
+    "node": "^12.22.1 || ^14.16.1"
   },
   "devDependencies": {
     "bluebird": "3.7.2",
