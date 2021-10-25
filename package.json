@@ -15,7 +15,7 @@
   },
   "bugs": "https://github.com/TryGhost/Ghost-Storage-Base/issues",
   "scripts": {
-    "test": "LEVEL=fatal _mocha --report lcovonly -- test/*_spec.js",
+    "test": "LEVEL=fatal _mocha --report lcovonly -- test/*.test.js",
     "preship": "yarn test",
     "ship": "STATUS=$(git status --porcelain); echo $STATUS; if [ -z \"$STATUS\" ]; then yarn publish && git push --follow-tags; fi"
   },
