@@ -45,6 +45,28 @@ describe('Storage Base', function () {
             .catch(done);
     });
 
+    it('getUniqueFileName: accepts mp4', function (done) {
+        const storage = new StorageBase();
+        let i = 0;
+
+        storage.exists = function () {
+            i = i + 1;
+
+            if (i < 2) {
+                return Promise.resolve(true);
+            } else {
+                return Promise.resolve(false);
+            }
+        };
+
+        storage.getUniqueFileName({name: 'something.mp4'}, 'target-dir')
+            .then(function (filename) {
+                filename.should.eql('target-dir/something-1.mp4');
+                done();
+            })
+            .catch(done);
+    });
+
     it('getUniqueFileName: deny .1 extension', function (done) {
         const storage = new StorageBase();
         let i = 0;

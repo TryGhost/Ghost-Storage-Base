@@ -49,8 +49,8 @@ class StorageBase {
         var ext = path.extname(image.name), name;
 
         // poor extension validation
-        // .1 is not a valid extension
-        if (!ext.match(/.\d/)) {
+        // .1 or .342 is not a valid extension, .mp4 is though!
+        if (!ext.match(/\.\d+$/)) {
             name = this.getSanitizedFileName(path.basename(image.name, ext));
             return this.generateUnique(targetDir, name, ext, 0);
         } else {
