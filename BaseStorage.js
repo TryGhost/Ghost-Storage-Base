@@ -21,6 +21,14 @@ class StorageBase {
         return path.join(year, month);
     }
 
+    /**
+     * 
+     * @param {String} dir 
+     * @param {String} name 
+     * @param {String} ext
+     * @param {Number} i index
+     * @returns {Promise<String>}
+     */
     generateUnique(dir, name, ext, i) {
         let filename,
             append = '';
@@ -45,16 +53,23 @@ class StorageBase {
         });
     }
 
-    getUniqueFileName(image, targetDir) {
-        var ext = path.extname(image.name), name;
+    /**
+     * @param {Object} file
+     * @param {String} file.name
+     * @param {String} targetDir
+     * 
+     * @returns {Promise<String>} unique file path
+     */
+    getUniqueFileName(file, targetDir) {
+        var ext = path.extname(file.name), name;
 
         // poor extension validation
         // .1 or .342 is not a valid extension, .mp4 is though!
         if (!ext.match(/\.\d+$/)) {
-            name = this.getSanitizedFileName(path.basename(image.name, ext));
+            name = this.getSanitizedFileName(path.basename(file.name, ext));
             return this.generateUnique(targetDir, name, ext, 0);
         } else {
-            name = this.getSanitizedFileName(path.basename(image.name));
+            name = this.getSanitizedFileName(path.basename(file.name));
             return this.generateUnique(targetDir, name, null, 0);
         }
     }
