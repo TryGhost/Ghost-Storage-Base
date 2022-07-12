@@ -1,5 +1,4 @@
-const moment = require('moment'),
-    path = require('path');
+const path = require('path');
 
 class StorageBase {
     constructor() {
@@ -10,9 +9,9 @@ class StorageBase {
     }
 
     getTargetDir(baseDir) {
-        const date = moment(),
-            month = date.format('MM'),
-            year = date.format('YYYY');
+        const date = new Date(),
+            month = date.toLocaleString('default', { month: '2-digit' }),
+            year = date.toLocaleString('default', { year: 'numeric' });
 
         if (baseDir) {
             return path.join(baseDir, year, month);
