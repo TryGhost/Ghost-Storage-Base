@@ -1,5 +1,5 @@
-const moment = require('moment'),
-    path = require('path');
+const moment = require('moment');
+const path = require('path');
 
 class StorageBase {
     constructor() {
@@ -10,73 +10,35 @@ class StorageBase {
     }
 
     getTargetDir(baseDir) {
-        const date = moment(),
-            month = date.format('MM'),
-            year = date.format('YYYY');
+        const date = moment();
+        const month = date.format('MM');
+        const year = date.format('YYYY');
 
-        if (baseDir) {
-            return path.join(baseDir, year, month);
-        }
-
-        return path.join(year, month);
+        return baseDir ? path.join(baseDir, year, month) : path.join(year, month);
     }
 
-    /**
-     * 
-     * @param {String} dir 
-     * @param {String} name 
-     * @param {String} ext
-     * @param {Number} i index
-     * @returns {Promise<String>}
-     */
-    generateUnique(dir, name, ext, i) {
-        let filename,
-            append = '';
+    async generateUnique(dir, name, ext, i = 0) {
+        let filename;
+        let append = i ? `-${i}` : '';
 
-        if (i) {
-            append = '-' + i;
-        }
+        filename = ext ? `${name}${append}${ext}` : `${name}${append}`;
 
-        if (ext) {
-            filename = name + append + ext;
+        const exists = await this.exists(filename, dir);
+        if (exists) {
+            return this.generateUnique(dir, name, ext, i + 1);
         } else {
-            filename = name + append;
+            return path.join(dir, filename);
         }
-
-        return this.exists(filename, dir).then((exists) => {
-            if (exists) {
-                i = i + 1;
-                return this.generateUnique(dir, name, ext, i);
-            } else {
-                return path.join(dir, filename);
-            }
-        });
     }
 
-    /**
-     * @param {Object} file
-     * @param {String} file.name
-     * @param {String} targetDir
-     * 
-     * @returns {Promise<String>} unique file path
-     */
-    getUniqueFileName(file, targetDir) {
-        var ext = path.extname(file.name), name;
+    async getUniqueFileName(file, targetDir) {
+        const ext = path.extname(file.name);
+        const name = this.getSanitizedFileName(path.basename(file.name, ext));
 
-        // poor extension validation
-        // .1 or .342 is not a valid extension, .mp4 is though!
-        if (!ext.match(/\.\d+$/)) {
-            name = this.getSanitizedFileName(path.basename(file.name, ext));
-            return this.generateUnique(targetDir, name, ext, 0);
-        } else {
-            name = this.getSanitizedFileName(path.basename(file.name));
-            return this.generateUnique(targetDir, name, null, 0);
-        }
+        return this.generateUnique(targetDir, name, ext.match(/\.\d+$/) ? null : ext);
     }
 
     getSanitizedFileName(fileName) {
-        // below only matches ascii characters, @, and .
-        // unicode filenames like город.zip would therefore resolve to ----.zip
         return fileName.replace(/[^\w@.]/gi, '-');
     }
 }
