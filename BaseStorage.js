@@ -146,6 +146,61 @@ class StorageBase {
     sanitizeBasename(basename) {
         return basename.replace(/[^\w@.]/gi, '-');
     }
+
+    /** Deprecated: use getUniquePathname instead
+     * @param {Object} file
+     * @param {String} file.name
+     * @param {String} targetDir
+     *
+     * @returns {Promise<String>} unique file path
+     * @deprecated
+     */
+    getUniqueFileName(file, targetDir) {
+        var ext = path.extname(file.name), name;
+
+        // poor extension validation
+        // .1 or .342 is not a valid extension, .mp4 is though!
+        if (!ext.match(/\.\d+$/)) {
+            name = this.sanitizeBasename(path.basename(file.name, ext));
+            return this.generateUnique(targetDir, name, ext, 0);
+        } else {
+            name = this.sanitizeBasename(path.basename(file.name));
+            return this.generateUnique(targetDir, name, null, 0);
+        }
+    }
+
+    /**
+     * Deprecated
+     * @param {String} dir
+     * @param {String} name
+     * @param {String} ext
+     * @param {Number} i index
+     * @returns {Promise<String>}
+     * @deprecated
+     */
+    generateUnique(dir, name, ext, i) {
+        let filename,
+            append = '';
+
+        if (i) {
+            append = '-' + i;
+        }
+
+        if (ext) {
+            filename = name + append + ext;
+        } else {
+            filename = name + append;
+        }
+
+        return this.exists(filename, dir).then((exists) => {
+            if (exists) {
+                i = i + 1;
+                return this.generateUnique(dir, name, ext, i);
+            } else {
+                return path.join(dir, filename);
+            }
+        });
+    }
 }
 
 module.exports = StorageBase;
