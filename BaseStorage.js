@@ -31,29 +31,24 @@ class StorageBase {
     /**
      * Generates a unique and secure file path for a given file and target directory
      *
-     * @param {Object} options
-     * @param {Object} options.file
-     * @param {String} options.file.name -- the name of the file
-     * @param {String} options.file.suffix -- the suffix to use for the file, e.g. "_o"
-     * @param {String} options.targetDir -- the target directory to save the file in
+     * @param {Object} file
+     * @param {String} file.name -- the name of the file
+     * @param {String} file.suffix -- the suffix to use for the file, e.g. "_o"
+     * @param {String} targetDir -- the target directory to save the file in
      * @returns {string}
      */
-    getUniqueSecureFilePath({
-        file: {
-            name: fileName,
-            suffix: fileSuffix = ORIGINAL_SUFFIX
-        },
-        targetDir
-    }) {
-        const sanitizedFileName = this.sanitizeFileName(path.basename(fileName));
+    getUniqueSecureFilePath(file = {name: '', suffix: ''}, targetDir) {
+        const originalFileName = path.basename(file.name);
+        const sanitizedFileName = this.sanitizeFileName(originalFileName);
+
         const ext = this.getFileExtension(sanitizedFileName);
-        const suffix = this.getSuffix({fileName: sanitizedFileName, ext, suffix: fileSuffix});
+        const suffix = this.getSuffix({fileName: sanitizedFileName, ext, suffix: file.suffix || ORIGINAL_SUFFIX});
         const stem = path.basename(sanitizedFileName, suffix + ext);
         const hash = this.generateSecureHash();
 
-        const filename = this.generateFileName({stem, hash, suffix, ext});
+        const newFileName = this.generateFileName({stem, hash, suffix, ext});
 
-        return path.join(targetDir, filename);
+        return path.join(targetDir, newFileName);
     }
 
     /** Sanitizes the file name, to accept only ASCII characters, '@', and '.'

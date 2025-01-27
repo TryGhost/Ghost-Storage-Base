@@ -8,12 +8,12 @@ describe('Storage Base', function () {
     describe('sanitizeFileName', function () {
         it('replaces non-ascii characters by -- in filenames', function () {
             const storage = new StorageBase();
-            storage.sanitizeFileName('(abc*@#123).zip').should.eql('-abc-@-123-.zip');
+            assert.equal(storage.sanitizeFileName('(abc*@#123).zip'), '-abc-@-123-.zip');
         });
 
         it('leaves ascii characters as is', function () {
             const storage = new StorageBase();
-            storage.sanitizeFileName('abc123.zip').should.eql('abc123.zip');
+            assert.equal(storage.sanitizeFileName('abc123.zip'), 'abc123.zip');
         });
     });
 
@@ -129,56 +129,56 @@ describe('Storage Base', function () {
     describe('getUniqueSecureFilePath', function () {
         it('accepts a file with non-ascii characters', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: '(abc*@#123).zip'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: '(abc*@#123).zip'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/-abc-@-123--\w{16}\.zip/);
         });
 
         it('accepts a file with a jpg extension', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'something.jpg'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'something.jpg'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something-\w{16}\.jpg/);
         });
 
         it('accepts a file with a png extension', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'something.png'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'something.png'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something-\w{16}\.png/);
         });
 
         it('accepts a file with a mp4 extension', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'something.mp4'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'something.mp4'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something-\w{16}\.mp4/);
         });
 
         it('accepts a file without extension', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'something'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'something'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something-\w{16}/);
         });
 
         it('accepts a file with an invalid extension .1', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'something.1'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'something.1'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something.1-\w{16}/);
         });
 
         it('accepts a file with the original suffix', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'image_o.png', suffix: '_o'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'image_o.png', suffix: '_o'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/image-\w{16}_o\.png/);
         });
 
         it('accepts a file with the original suffix, if the suffix is not provided as parameter (default)', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: 'image_o.png'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: 'image_o.png'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/image-\w{16}_o\.png/);
         });
@@ -188,7 +188,7 @@ describe('Storage Base', function () {
 
             const filePaths = [];
             for (let i = 0; i < 10; i++) {
-                filePaths.push(storage.getUniqueSecureFilePath({file: {name: 'image.png'}, targetDir: 'target-dir'}));
+                filePaths.push(storage.getUniqueSecureFilePath({name: 'image.png'}, 'target-dir'));
             }
 
             assert.equal(filePaths.length, 10);
@@ -197,7 +197,7 @@ describe('Storage Base', function () {
 
         it('truncates an ascii filename to be under MAX_FILENAME_BYTES', function () {
             const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({file: {name: `a`.repeat(260) + '.png'}, targetDir: 'target-dir'});
+            const filePath = storage.getUniqueSecureFilePath({name: `a`.repeat(260) + '.png'}, 'target-dir');
             const fileName = path.basename(filePath);
 
             assert.equal(fileName.length, MAX_FILENAME_BYTES);
