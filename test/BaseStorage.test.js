@@ -50,18 +50,18 @@ describe('Storage Base', function () {
         it('returns a filename with the original name, a secured hash and extension', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
-            const stem = 'something';
+            const name = 'something';
             const ext = '.jpg';
 
-            assert.equal(storage.generateFileName({stem, hash, ext}), `${stem}-${hash}${ext}`);
+            assert.equal(storage.generateFileName({name, hash, ext}), `${name}-${hash}${ext}`);
         });
 
         it('returns a filename with the original name and a secured hash when used without an extension', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
-            const stem = 'something';
+            const name = 'something';
 
-            assert.equal(storage.generateFileName({stem, hash}), `${stem}-${hash}`);
+            assert.equal(storage.generateFileName({name, hash}), `${name}-${hash}`);
         });
 
         it('truncates the basename to be under MAX_FILENAME_BYTES', function () {
@@ -69,10 +69,11 @@ describe('Storage Base', function () {
             const hash = 'a1b2c3d4e5f6';
             const ext = '.jpg';
             const lengthToRemove = '-'.length + hash.length + ext.length;
-            const stem = 'a'.repeat(MAX_FILENAME_BYTES);
-            const truncatedStem = 'a'.repeat(MAX_FILENAME_BYTES - lengthToRemove);
 
-            assert.equal(storage.generateFileName({stem, hash, ext}), `${truncatedStem}-${hash}${ext}`);
+            const name = 'a'.repeat(MAX_FILENAME_BYTES);
+            const truncatedName = 'a'.repeat(MAX_FILENAME_BYTES - lengthToRemove);
+
+            assert.equal(storage.generateFileName({name, hash, ext}), `${truncatedName}-${hash}${ext}`);
         });
 
         it('truncates a multi-bytes basename to be under MAX_FILENAME_BYTES', function () {
@@ -81,10 +82,10 @@ describe('Storage Base', function () {
             const ext = '.jpg';
             const lengthToRemove = '-'.length + hash.length + ext.length;
 
-            const stem = '🌴'.repeat(100); // 100 🌴 characters = 100 * 4 bytes = 400 bytes
-            const truncatedStem = '🌴'.repeat((MAX_FILENAME_BYTES - lengthToRemove) / 4);
+            const name = '🌴'.repeat(100); // 100 🌴 characters = 100 * 4 bytes = 400 bytes
+            const truncatedName = '🌴'.repeat((MAX_FILENAME_BYTES - lengthToRemove) / 4);
 
-            assert.equal(storage.generateFileName({stem, hash, ext}), `${truncatedStem}-${hash}${ext}`);
+            assert.equal(storage.generateFileName({name, hash, ext}), `${truncatedName}-${hash}${ext}`);
         });
     });
 

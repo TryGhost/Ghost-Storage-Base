@@ -44,18 +44,19 @@ class StorageBase {
         const originalFileName = path.basename(file.name);
         const sanitizedFileName = this.sanitizeFileName(originalFileName);
 
-        const ext = this.getFileExtension(sanitizedFileName);
-        const stem = path.basename(sanitizedFileName, ext);
-        const hash = this.generateSecureHash();
+        const ext = this.getFileExtension(sanitizedFileName); // e.g. ".png"
+        const name = path.basename(sanitizedFileName, ext); // e.g. my-file
+        const hash = this.generateSecureHash(); // e.g. 1a2b3c4d5e6f7890
 
-        const newFileName = this.generateFileName({stem, hash, ext});
+        const newFileName = this.generateFileName({name, hash, ext}); // e.g. my-file-1a2b3c4d5e6f7890.png
 
         return path.join(targetDir, newFileName);
     }
 
-    /** Sanitizes the file name, to accept only ASCII characters, '@', and '.'
-     *  Replaces other characters with dashes.
-     *  Example: город.zip is replaced with ----.zip
+    /**
+     * Sanitizes the file name, to accept only ASCII characters, '@', and '.'
+     * Replaces other characters with dashes.
+     * Example: город.zip is replaced with ----.zip
      *
      * @param {String} fileName
      * @returns {String}
@@ -64,7 +65,8 @@ class StorageBase {
         return fileName.replace(/[^\w@.]/gi, '-');
     }
 
-    /** Extracts the file extension from the filename, if it is a valid extension
+    /**
+     * Extracts the file extension from the filename, if it is a valid extension
      *
      * @param {string} fileName
      * @returns {string}
@@ -80,36 +82,38 @@ class StorageBase {
         return ext;
     }
 
-    /** Generates a secure hash for the filename, to make it very unlikely to be guessed and very likely to be unique
-     *  Uses 8 random bytes -> 8 * 8 = 64 bits of entropy -> 2^64 possible combinations (18 quintillion, i.e. 18 followed by 18 zeros)
+    /**
+     * Generates a secure hash for the filename, to make it very unlikely to be guessed and very likely to be unique
+     * Uses 8 random bytes -> 8 * 8 = 64 bits of entropy -> 2^64 possible combinations (18 quintillion, i.e. 18 followed by 18 zeros)
      *
-     *  @returns {String}
+     * @returns {string}
      */
     generateSecureHash() {
         return crypto.randomBytes(8).toString('hex');
     }
 
-    /** Generates a filename with the following format: my-file-1a2b3c4d5e6f7890.png, with a filename length under MAX_FILENAME_LENGTH
+        /**
+     * Generates a filename with the following format: my-file-1a2b3c4d5e6f7890.png, with a filename length under MAX_FILENAME_LENGTH
      *
-     * @param {String} stem -- stem of the file without path nor extension, e.g. my-file. If needed, this will be truncated, so that the filename is under MAX_FILENAME_BYTES
+     * @param {String} name -- name of the file without extension, e.g. my-file. If needed, this will be truncated, so that the filename is under MAX_FILENAME_BYTES
      * @param {String} hash -- a secured hash to append the file, after the stem of the file, e.g. 1a2b3c4d5e6f
      * @param {String} ext -- the extension of the file, e.g. ".png"
      * @returns {String}
      */
-    generateFileName({stem, hash, ext = ''}) {
+    generateFileName({name, hash, ext = ''}) {
         const encoder = new TextEncoder();
-        let filename = `${stem}-${hash}${ext}`;
+        let filename = `${name}-${hash}${ext}`;
 
         const fileNameBytes = encoder.encode(filename);
 
-        // If the filename has more bytes than the maximum allowed, truncate the stem
+        // If the filename has more bytes than the maximum allowed, truncate the name
         if (fileNameBytes.length > MAX_FILENAME_BYTES) {
-            const stemBytes = encoder.encode(stem);
+            const nameBytes = encoder.encode(name);
             const bytesToRemove = fileNameBytes.length - MAX_FILENAME_BYTES;
-            const newStemBytes = stemBytes.slice(0, -bytesToRemove);
+            const truncatedNameBytes = nameBytes.slice(0, -bytesToRemove);
 
             const decoder = new TextDecoder();
-            filename = `${decoder.decode(newStemBytes)}-${hash}${ext}`;
+            filename = `${decoder.decode(truncatedNameBytes)}-${hash}${ext}`;
         }
 
         return filename;
@@ -119,12 +123,14 @@ class StorageBase {
      * [Deprecated] Returns a unique file path for a given file and target directory
      *
      * @param {Object} file
-     * @param {String} file.name
-     * @param {String} targetDir
-     * @returns {Promise<String>}
+     * @param {string} file.name
+     * @param {string} targetDir
+     * @returns {Promise<string>}
      * @deprecated use getUniqueSecureFilePath instead
      */
     getUniqueFileName(file, targetDir) {
+        logging.warn('getUniqueFileName is deprecated. Use getUniqueSecureFilePath instead.');
+
         var ext = path.extname(file.name), name;
 
         // poor extension validation
