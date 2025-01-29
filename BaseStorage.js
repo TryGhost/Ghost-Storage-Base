@@ -2,8 +2,8 @@ const moment = require('moment');
 const path = require('path');
 const crypto = require('crypto');
 
-// UNIX filesystems usually have a 255 bytes length limit for filenames
-// We keep an additional 2 bytes buffer for an eventual suffix in the filename (e.g. "_o" for original files after transformation)
+// Most UNIX filesystems have a 255 bytes limit for the filename length
+// We keep 2 additional bytes, to make space for a file suffix (e.g. "_o" for original files after transformation)
 const MAX_FILENAME_BYTES = 253;
 
 class StorageBase {
@@ -80,7 +80,7 @@ class StorageBase {
         return ext;
     }
 
-    /** Generate a secure hash for the filename, to make it very unlikely to be guessed and very likely to be unique
+    /** Generates a secure hash for the filename, to make it very unlikely to be guessed and very likely to be unique
      *  Uses 8 random bytes -> 8 * 8 = 64 bits of entropy -> 2^64 possible combinations (18 quintillion, i.e. 18 followed by 18 zeros)
      *
      *  @returns {String}
@@ -89,7 +89,7 @@ class StorageBase {
         return crypto.randomBytes(8).toString('hex');
     }
 
-    /** Generate a filename with the following format: my-file-1a2b3c4d5e6f_o.png, with a filename length under MAX_FILENAME_LENGTH
+    /** Generates a filename with the following format: my-file-1a2b3c4d5e6f7890.png, with a filename length under MAX_FILENAME_LENGTH
      *
      * @param {String} stem -- stem of the file without path nor extension, e.g. my-file. If needed, this will be truncated, so that the filename is under MAX_FILENAME_BYTES
      * @param {String} hash -- a secured hash to append the file, after the stem of the file, e.g. 1a2b3c4d5e6f
@@ -115,13 +115,14 @@ class StorageBase {
         return filename;
     }
 
-    /** Deprecated: use getUniqueSecureFilePath instead
+    /**
+     * [Deprecated] Returns a unique file path for a given file and target directory
+     *
      * @param {Object} file
      * @param {String} file.name
      * @param {String} targetDir
-     *
-     * @returns {Promise<String>} unique file path
-     * @deprecated
+     * @returns {Promise<String>}
+     * @deprecated use getUniqueSecureFilePath instead
      */
     getUniqueFileName(file, targetDir) {
         var ext = path.extname(file.name), name;
@@ -138,13 +139,13 @@ class StorageBase {
     }
 
     /**
-     * Deprecated alongside getUniqueFileName: use getUniqueSecureFilePath instead
+     * [Deprecated] Generates a unique file path using a numbering system, e.g. image.png, image-1.png, image-2.png, etc.
      * @param {String} dir
      * @param {String} name
      * @param {String} ext
      * @param {Number} i index
      * @returns {Promise<String>}
-     * @deprecated
+     * @deprecated use getUniqueSecureFilePath instead
      */
     generateUnique(dir, name, ext, i) {
         let filename;
