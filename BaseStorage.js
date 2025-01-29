@@ -2,11 +2,9 @@ const moment = require('moment');
 const path = require('path');
 const crypto = require('crypto');
 
-// Filesystems usually have a filename length limit -- 255 bytes is the standard limit on Unix-based systems
-const MAX_FILENAME_BYTES = 255;
-
-// When an uploaded file is transformed, the original file is stored with the suffix '_o'
-const ORIGINAL_SUFFIX = '_o';
+// UNIX filesystems usually have a 255 bytes length limit for filenames
+// We keep an additional 2 bytes buffer for an eventual suffix in the filename (e.g. "_o" for original files after transformation)
+const MAX_FILENAME_BYTES = 253;
 
 class StorageBase {
     constructor() {
@@ -16,6 +14,12 @@ class StorageBase {
         });
     }
 
+    /**
+     * Returns the target directory for a given base directory
+     *
+     * @param {String} baseDir -- the base directory to save the file in
+     * @returns {string} -- Returns a directory path with the format baseDir/YYYY/MM, e.g. content/images/2025/01
+     */
     getTargetDir(baseDir) {
         const date = moment();
         const month = date.format('MM');
@@ -33,20 +37,18 @@ class StorageBase {
      *
      * @param {Object} file
      * @param {String} file.name -- the name of the file
-     * @param {String} file.suffix -- the suffix to use for the file, e.g. "_o"
      * @param {String} targetDir -- the target directory to save the file in
      * @returns {string}
      */
-    getUniqueSecureFilePath(file = {name: '', suffix: ''}, targetDir) {
+    getUniqueSecureFilePath(file, targetDir) {
         const originalFileName = path.basename(file.name);
         const sanitizedFileName = this.sanitizeFileName(originalFileName);
 
         const ext = this.getFileExtension(sanitizedFileName);
-        const suffix = this.getSuffix({fileName: sanitizedFileName, ext, suffix: file.suffix || ORIGINAL_SUFFIX});
-        const stem = path.basename(sanitizedFileName, suffix + ext);
+        const stem = path.basename(sanitizedFileName, ext);
         const hash = this.generateSecureHash();
 
-        const newFileName = this.generateFileName({stem, hash, suffix, ext});
+        const newFileName = this.generateFileName({stem, hash, ext});
 
         return path.join(targetDir, newFileName);
     }
@@ -78,25 +80,6 @@ class StorageBase {
         return ext;
     }
 
-    /** Extracts the given suffix from the file name, if it exists
-     *
-     * @param {Object} options
-     * @param {String} options.fileName
-     * @param {String} options.ext
-     * @param {String} options.suffix
-     * @returns {String}
-     */
-    getSuffix({fileName, ext = '', suffix = ''}) {
-        const stem = path.basename(fileName, ext);
-
-        // If the stem does not end with the suffix, return an empty string
-        if (!stem.endsWith(suffix)) {
-            return '';
-        }
-
-        return suffix;
-    }
-
     /** Generate a secure hash for the filename, to make it very unlikely to be guessed and very likely to be unique
      *  Uses 8 random bytes -> 8 * 8 = 64 bits of entropy -> 2^64 possible combinations (18 quintillion, i.e. 18 followed by 18 zeros)
      *
@@ -111,12 +94,11 @@ class StorageBase {
      * @param {String} stem -- stem of the file without path nor extension, e.g. my-file. If needed, this will be truncated, so that the filename is under MAX_FILENAME_BYTES
      * @param {String} hash -- a secured hash to append the file, after the stem of the file, e.g. 1a2b3c4d5e6f
      * @param {String} ext -- the extension of the file, e.g. ".png"
-     * @param {String} suffix -- optional, suffix to keep at the end of the stem, e.g. "_o"
      * @returns {String}
      */
-    generateFileName({stem, hash, suffix = '', ext = ''}) {
+    generateFileName({stem, hash, ext = ''}) {
         const encoder = new TextEncoder();
-        let filename = `${stem}-${hash}${suffix}${ext}`;
+        let filename = `${stem}-${hash}${ext}`;
 
         const fileNameBytes = encoder.encode(filename);
 
@@ -127,7 +109,7 @@ class StorageBase {
             const newStemBytes = stemBytes.slice(0, -bytesToRemove);
 
             const decoder = new TextDecoder();
-            filename = `${decoder.decode(newStemBytes)}-${hash}${suffix}${ext}`;
+            filename = `${decoder.decode(newStemBytes)}-${hash}${ext}`;
         }
 
         return filename;

@@ -2,7 +2,7 @@ const assert = require('assert').strict;
 const path = require('path');
 
 const StorageBase = require('../BaseStorage');
-const MAX_FILENAME_BYTES = 255;
+const MAX_FILENAME_BYTES = 253;
 
 describe('Storage Base', function () {
     describe('sanitizeFileName', function () {
@@ -34,23 +34,6 @@ describe('Storage Base', function () {
         });
     });
 
-    describe('getSuffix', function () {
-        it('returns the suffix of the file with an extension', function () {
-            const storage = new StorageBase();
-            assert.equal(storage.getSuffix({fileName: 'abc123_o.zip', ext: '.zip', suffix: '_o'}), '_o');
-        });
-
-        it('returns the suffix of the file without an extension', function () {
-            const storage = new StorageBase();
-            assert.equal(storage.getSuffix({fileName: 'abc123_o', suffix: '_o'}), '_o');
-        });
-
-        it('returns an empty string if the suffix is not at the end of the filename', function () {
-            const storage = new StorageBase();
-            assert.equal(storage.getSuffix({fileName: 'abc_o_123.zip', ext: '.zip', suffix: '_o'}), '');
-        });
-    });
-
     describe('generateSecureHash', function () {
         it('returns a 16 character hash', function () {
             const storage = new StorageBase();
@@ -64,26 +47,7 @@ describe('Storage Base', function () {
     });
 
     describe('generateFilename', function () {
-        it('returns a filename with the original name, a secured hash, suffix and extension', function () {
-            const storage = new StorageBase();
-            const hash = 'a1b2c3d4e5f6';
-            const stem = 'something';
-            const suffix = '_o';
-            const ext = '.jpg';
-
-            assert.equal(storage.generateFileName({stem, hash, suffix, ext}), `${stem}-${hash}${suffix}${ext}`);
-        });
-
-        it('returns a filename with the original name, a secured hash and suffix, when used without an extension', function () {
-            const storage = new StorageBase();
-            const hash = 'a1b2c3d4e5f6';
-            const stem = 'something';
-            const suffix = '_o';
-
-            assert.equal(storage.generateFileName({stem, hash, suffix}), `${stem}-${hash}${suffix}`);
-        });
-
-        it('returns a filename with the original name, a secured hash and extension, when used without a suffix', function () {
+        it('returns a filename with the original name, a secured hash and extension', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
             const stem = 'something';
@@ -92,7 +56,7 @@ describe('Storage Base', function () {
             assert.equal(storage.generateFileName({stem, hash, ext}), `${stem}-${hash}${ext}`);
         });
 
-        it('returns a filename with the original name and a secured hash, when used without a suffix and extension', function () {
+        it('returns a filename with the original name and a secured hash when used without an extension', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
             const stem = 'something';
@@ -103,26 +67,24 @@ describe('Storage Base', function () {
         it('truncates the basename to be under MAX_FILENAME_BYTES', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
-            const suffix = '_o';
             const ext = '.jpg';
-            const lengthToRemove = '-'.length + hash.length + suffix.length + ext.length;
+            const lengthToRemove = '-'.length + hash.length + ext.length;
             const stem = 'a'.repeat(MAX_FILENAME_BYTES);
             const truncatedStem = 'a'.repeat(MAX_FILENAME_BYTES - lengthToRemove);
 
-            assert.equal(storage.generateFileName({stem, hash, suffix, ext}), `${truncatedStem}-${hash}${suffix}${ext}`);
+            assert.equal(storage.generateFileName({stem, hash, ext}), `${truncatedStem}-${hash}${ext}`);
         });
 
         it('truncates a multi-bytes basename to be under MAX_FILENAME_BYTES', function () {
             const storage = new StorageBase();
             const hash = 'a1b2c3d4e5f6';
-            const suffix = '_o';
             const ext = '.jpg';
-            const lengthToRemove = '-'.length + hash.length + suffix.length + ext.length;
+            const lengthToRemove = '-'.length + hash.length + ext.length;
 
             const stem = '🌴'.repeat(100); // 100 🌴 characters = 100 * 4 bytes = 400 bytes
             const truncatedStem = '🌴'.repeat((MAX_FILENAME_BYTES - lengthToRemove) / 4);
 
-            assert.equal(storage.generateFileName({stem, hash, suffix, ext}), `${truncatedStem}-${hash}${suffix}${ext}`);
+            assert.equal(storage.generateFileName({stem, hash, ext}), `${truncatedStem}-${hash}${ext}`);
         });
     });
 
@@ -167,20 +129,6 @@ describe('Storage Base', function () {
             const filePath = storage.getUniqueSecureFilePath({name: 'something.1'}, 'target-dir');
 
             assert.match(filePath, /target-dir\/something.1-\w{16}/);
-        });
-
-        it('accepts a file with the original suffix', function () {
-            const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({name: 'image_o.png', suffix: '_o'}, 'target-dir');
-
-            assert.match(filePath, /target-dir\/image-\w{16}_o\.png/);
-        });
-
-        it('accepts a file with the original suffix, if the suffix is not provided as parameter (default)', function () {
-            const storage = new StorageBase();
-            const filePath = storage.getUniqueSecureFilePath({name: 'image_o.png'}, 'target-dir');
-
-            assert.match(filePath, /target-dir\/image-\w{16}_o\.png/);
         });
 
         it('does not generate the same filename when called 10 times with the same file', function () {
