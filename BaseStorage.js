@@ -129,6 +129,8 @@ class StorageBase {
      * @deprecated use getUniqueSecureFilePath instead
      */
     getUniqueFileName(file, targetDir) {
+        logging.warn('getUniqueFileName is deprecated. Use getUniqueSecureFilePath instead.');
+
         var ext = path.extname(file.name), name;
 
         // poor extension validation
