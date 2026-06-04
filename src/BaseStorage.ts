@@ -1,7 +1,22 @@
-const moment = require('moment'),
-    path = require('path');
+import moment from 'moment';
+import path from 'path';
+
+interface StorageBase {
+    exists(fileName: string, targetDir?: string): Promise<boolean>;
+    save(file: {name: string; path: string; type?: string}, targetDir?: string): Promise<string>;
+    serve(): unknown;
+    delete(fileName: string, targetDir?: string): Promise<void>;
+    read(options: {path: string}): Promise<Buffer>;
+
+    saveRaw(buffer: Buffer, targetPath: string): Promise<string>;
+    urlToPath(url: string): string;
+}
 
 class StorageBase {
+    readonly requiredFns!: readonly ['exists', 'save', 'serve', 'delete', 'read'];
+
+    protected declare storagePath: string;
+
     constructor() {
         Object.defineProperty(this, 'requiredFns', {
             value: ['exists', 'save', 'serve', 'delete', 'read'],
@@ -9,7 +24,7 @@ class StorageBase {
         });
     }
 
-    getTargetDir(baseDir) {
+    getTargetDir(baseDir?: string | null): string {
         const date = moment(),
             month = date.format('MM'),
             year = date.format('YYYY');
@@ -21,16 +36,8 @@ class StorageBase {
         return path.join(year, month);
     }
 
-    /**
-     * 
-     * @param {String} dir 
-     * @param {String} name 
-     * @param {String} ext
-     * @param {Number} i index
-     * @returns {Promise<String>}
-     */
-    generateUnique(dir, name, ext, i) {
-        let filename,
+    generateUnique(dir: string, name: string, ext: string | null, i: number): Promise<string> {
+        let filename: string,
             append = '';
 
         if (i) {
@@ -53,15 +60,9 @@ class StorageBase {
         });
     }
 
-    /**
-     * @param {Object} file
-     * @param {String} file.name
-     * @param {String} targetDir
-     * 
-     * @returns {Promise<String>} unique file path
-     */
-    getUniqueFileName(file, targetDir) {
-        var ext = path.extname(file.name), name;
+    getUniqueFileName(file: {name: string}, targetDir: string): Promise<string> {
+        const ext = path.extname(file.name);
+        let name: string;
 
         // poor extension validation
         // .1 or .342 is not a valid extension, .mp4 is though!
@@ -74,11 +75,11 @@ class StorageBase {
         }
     }
 
-    getSanitizedFileName(fileName) {
+    getSanitizedFileName(fileName: string): string {
         // below only matches ascii characters, @, and .
         // unicode filenames like город.zip would therefore resolve to ----.zip
         return fileName.replace(/[^\w@.]/gi, '-');
     }
 }
 
-module.exports = StorageBase;
+export = StorageBase;
