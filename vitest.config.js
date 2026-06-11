@@ -3,7 +3,7 @@ const {defineConfig} = require('vitest/config');
 module.exports = defineConfig({
     test: {
         coverage: {
-            include: ['lib/BaseStorage.js'],
+            include: ['src/BaseStorage.ts'],
             provider: 'v8',
             reporter: ['text', 'lcov'],
             thresholds: {
