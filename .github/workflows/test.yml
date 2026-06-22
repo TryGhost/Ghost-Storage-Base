@@ -58,7 +58,7 @@ jobs:
 
   all-tests-pass:
     name: All tests pass
-    if: always()
+    if: always() && (github.event_name == 'push' || !startsWith(github.head_ref, 'renovate/'))
     needs: [lint, build]
     runs-on: ubuntu-latest
     steps:
